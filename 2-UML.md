@@ -113,7 +113,7 @@ On voit bien que la flèche qui part de B a changé de sens. Maintenant c'est A 
 
 On voit alors toute l'importance d'une interface (d'un protocol) et son utilité pour mettre en place des architectures souples et ne traversant les couches que dans un sens.
 
-## Exercices
+## Exercice
 
 Ouvrir le [Playground UML](playgrounds/UML.playground)
 

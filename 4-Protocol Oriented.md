@@ -113,7 +113,7 @@ public protocol Subscription : Cancellable, CustomCombineIdentifierConvertible {
 }
 ```
 
-Exercice :
+## Exercice :
 
 Ouvrir le [Playground Combine](playgrounds/Combine.playground)
 
