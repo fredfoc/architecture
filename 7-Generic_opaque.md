@@ -338,8 +338,41 @@ https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-an
 https://www.avanderlee.com/swift/anyobject-any/
 
 
+Exemple intéressant :
 
+```swift
+protocol Machin {}
 
+class Truc {
+    var machin: any Machin
+    init() {
+        machin = Machin1()
+    }
+
+    func `switch`() {
+        machin = Machin2()
+    }
+}
+
+class TrucGeneric<T: Machin> {
+    var machin: T
+    init(machin: T) {
+        self.machin = machin
+    }
+}
+
+struct Machin1: Machin {}
+struct Machin2: Machin {}
+
+let truc1 = Truc(machin: Machin1())
+truc1.switch() //Pas d'erreur
+let truc2 = TrucGeneric(machin: Machin1())
+truc2.machin = Machin2() //Erreur de typage
+```
+
+`Truc` est existentiel. On ne connait pas la véritable valeur de `machin`, on sait juste que c'est un `Machin`. On ne lui fournit pas spécifiquement, il en fait ce qu'il veut.
+
+`TrucGeneric` est universel, il marche avec tous les types respectant `Machin`, mais il ne renvoit qu'une seule sorte de `Machin`. On lui fournit ce `Machin` de l'extérieur.
 
 
 
