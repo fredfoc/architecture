@@ -212,6 +212,134 @@ struct SprayPaint: CustomStringConvertible {
 
 Réponses ici [Playground Generics](playgrounds/generics.playground)
 
+## Opaque Type
+
+Avec les generics vous permettez à l'utilisateur de choisir le type qu'il va utiliser. Avec les types opaques c'est l'inverse, vous présentez un protocol qui cache le typage à l'utilisateur mais c'est vous qui choisissez le typage et le compilateur va optimiser la compilation en fonction de ce typage (il effacera ensuite, à la compilation, le protocol pour le remplacer par le type correct).
+
+Exemple :
+
+```swift
+public protocol SomethingHidden {
+    func test() -> Bool
+}
+
+struct HiddenImplementation: SomethingHidden {
+    func test() -> Bool {
+        true
+    }
+}
+
+public enum Builder {
+    static func make() -> some SomethingHidden {
+        HiddenImplementation()
+    }
+}
+
+let something = Builder.make()
+print(something.test()) // print true
+```
+
+Le `Builder` retourne quelque chose du type `SomethingHidden`. Le compilateur sait qu'il s'agit d'un `HiddenImplementation` mais pas l'utilisateur du `Builder`.
+
+### Différence entre protocol type et opaque type
+
+Dans l'exemple ci-dessus, on aurait pu mettre :
+
+```swift
+public enum Builder {
+    static func make() -> SomethingHidden {
+        HiddenImplementation()
+    }
+}
+```
+
+Ici le `Builder` indique qu'il retourne quelque chose du type `SomethingHidden` comme précedemment, à la différence que le compilateur ne va pas inférer le type renvoyé ce qui peut mener à différentes problèmes. En contre-partie vous gagnez évidemment en flexibilité puisque vous pouvez renvoyer différentes implémentations (ce que ne permettrez pas le type opaque).
+
+Exemple :
+
+```swift
+struct AnotherHiddenImplementation: SomethingHidden {
+    func test() -> Bool {
+        false
+    }
+}
+
+public enum AnotherBuilder {
+    static func make(_ value: Bool) -> SomethingHidden {
+        value ? HiddenImplementation() : AnotherHiddenImplementation()
+    }
+}
+
+let somethingElse = AnotherBuilder.make(false)
+print(somethingElse.test())
+```
+
+Nous n'aurions pas pu utiliser `some SomethingHidden` puisque le compilateur ne sait choisir entre `HiddenImplementation` et `AnotherHiddenImplementation`.
+
+Ce que les types opaques permettent aussi de résoudre sont les cas suivants :
+
+```swift
+protocol Container {
+    associatedtype Item
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
+}
+extension Array: Container { }
+```
+
+Vous ne pouvez pas utiliser ce protocol cmme retour de fonction ou comme contrainte sur des generics.
+
+```swift
+// Error: Protocol with associated types can't be used as a return type.
+func makeProtocolContainer(item: some Any) -> Container {
+    [item]
+}
+
+// Error: Not enough information to infer C.
+func makeProtocolContainer<C: Container>(item: some Any) -> C {
+    [item]
+}
+```
+
+Swift ne pourra pas inférer correctement le type de retour puisque Container a un associated type. Il suffit de passer par des types opaques comme suit :
+
+```swift
+func makeProtocolContainer(item: some Any) -> some Container {
+    [item]
+}
+```
+
+Dans ce cadre, Swift infère le type en utilisant le type de `item`.
+
+On rencontre régulièrement ce problème avec des Protocols contenant des associated types (le célèbre *Protocol can only be used as a generic constraint*)
+
+Rem :
+
+Depuis Swift 5.7, on peut remplacer la notation generics par l'utilisation de `some` comme dans l'exemple ci-dessous :
+
+```swift
+// generics
+func printElement<T: CustomStringConvertible>(_ element: T) {
+    print(element)
+}
+```
+
+```swift
+// some
+func printElement(_ element: some CustomStringConvertible) {
+    print(element.description)
+}
+```
+
+### any
+
+https://forums.swift.org/t/improving-the-ui-of-generics/22814#heading--limits-of-existentials
+https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md#any-and-anyobject
+https://www.avanderlee.com/swift/anyobject-any/
+
+
+
+
 
 
 
