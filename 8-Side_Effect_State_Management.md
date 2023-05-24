@@ -36,6 +36,8 @@ Une méthode qui ne renvoie rien, en général, modifie de l'état ou change que
 
 Voir : [side effect](https://en.wikipedia.org/wiki/Side_effect_(computer_science))
 
+https://developer.apple.com/documentation/swift/maintaining-state-in-your-apps
+
 ## State Management
 
 La notion d'état n'est pas tout à fait claire et dépend largement des dévelopeureuses qui en parlent. Pour certains.es, il s'agit de la couche de persistence, pour d'autres de la manière dont le flux de données circulent dans l'app. L'état est aussi dépendant de votre business, il sera différent pour une banque, pour un site de vente en lignes, pour une messagerie.
